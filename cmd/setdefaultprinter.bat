@@ -1,0 +1,1 @@
+Rundll32.EXE printui.dll,PrintUIEntry /y /n "[printer name]"

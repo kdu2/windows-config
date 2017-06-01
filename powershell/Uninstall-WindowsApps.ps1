@@ -1,0 +1,1 @@
+get-appxprovisionedpackage -online | out-gridview -passthru | remove-appxprovisionedpackage -online
