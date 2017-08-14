@@ -8,15 +8,13 @@
 
 # accepted parameters should be either "logon" or "logoff"
 # additional parameter available for testing with local log file
-param([string]$activity,[bool]$test=$false)
+param([string]$activity,[bool]$test=$false,[string]$lab)
+
+# skip if using a admin/test account
+if ($env:username -match "pattern") { exit }
 
 # date formatting
 $activity_datetime = Get-Date -Format "MM/dd/yyyy hh:mm:ss tt"
-
-# network info
-$nic = Get-WmiObject -Class win32_networkadapterconfiguration -Filter "IPEnabled='True'" | where { $_.Description -like "Intel*"}
-$mac_address = $nic.MACAddress
-$ip_address = $nic.IPAddress[0]
 
 # computer name
 $computer_name = $env:computername
@@ -26,8 +24,18 @@ $os_name = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentV
 switch -Wildcard ($os_name) {
     "Windows 7*" { $os_version = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name CurrentVersion).CurrentVersion }
     "Windows 10*" { $os_version = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name ReleaseId).ReleaseId }
+    "Windows Embedded*" { $os_version = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name CurrentVersion).CurrentVersion }
     default { $os_version = "unknown" }
 }
+
+# network info
+if ($os_name -notmatch "Embedded") {
+    $nic = Get-WmiObject -Class win32_networkadapterconfiguration -Filter "IPEnabled='True'" | where { $_.Description -like "Intel*"}
+} else {
+    $nic = Get-WmiObject -Class win32_networkadapterconfiguration -Filter "DHCPEnabled='True'" | where { $_.IPAddress -ne $null }
+}
+$mac_address = $nic.MACAddress
+$ip_address = $nic.IPAddress[0]
 
 # hardware info
 $processor_info = (Get-WmiObject -Class win32_processor).name
@@ -40,7 +48,7 @@ $userinfo = ([ADSISEARCHER]"samaccountname=$($username)").Findone()
 $usergroups = $userinfo.Properties.memberof -replace '^CN=([^,]+).+$','$1'
 
 # set lab prefix
-$lab = $computer_name.Substring(0,11)
+if (!$test) { $lab = $computer_name.Substring(0,11) }
 $labs = Import-Csv "\\server\share\folder\labs.csv" | where { $_.prefix -eq $lab } | select prefix,area,group
 # if no matches found, set to unknown
 if ($labs.area -eq "") {
@@ -78,7 +86,6 @@ $log_filename = "$area - $log_date.log"
 if (!(Test-Path $log_path/$log_filename)) {
     $log_header = "`"area`",`"username`",`"member`",`"activity`",`"activity_datetime`",`"computer_name`",`"os`",`"os_version`",`"processor_info`",`"drive_share`",`"ip_address`",`"mac_address`""
     Write-Output $log_header | Out-File -Append $log_path\$log_filename
-    if ($test) { Write-Host $log_header }
 }
 
 # write to file
