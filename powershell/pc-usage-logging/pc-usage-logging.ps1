@@ -29,11 +29,7 @@ switch -Wildcard ($os_name) {
 }
 
 # network info
-if ($os_name -notmatch "Embedded") {
-    $nic = Get-WmiObject -Class win32_networkadapterconfiguration -Filter "IPEnabled='True'" | where { $_.Description -like "Intel*"}
-} else {
-    $nic = Get-WmiObject -Class win32_networkadapterconfiguration -Filter "DHCPEnabled='True'" | where { $_.IPAddress -ne $null }
-}
+$nic = Get-WmiObject -Class win32_networkadapterconfiguration -Filter "DHCPEnabled='True'" | where { $_.IPAddress -ne $null }
 $mac_address = $nic.MACAddress
 $ip_address = $nic.IPAddress[0]
 
