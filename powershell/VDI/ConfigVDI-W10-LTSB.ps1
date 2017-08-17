@@ -246,6 +246,16 @@ Write-Host "Disabling PeerCaching..." -ForegroundColor Green
 reg add hklm\software\microsoft\windows\currentversion\DeliveryOptimization\Config /v DODownloadMode /t REG_DWORD /d 0 /f
 Write-Host ""
 
+# Disable show last username
+Write-Host "Disabling show last username..." -ForegroundColor Green
+reg add hklm\software\microsoft\windows\currentversion\policies\system /v dontdisplaylastusername /t REG_DWORD /d 1 /f
+Write-Host ""
+
+# Disable IPv6
+Write-Host "Disabling IPv6..." -ForegroundColor Green
+reg add hklm\system\currentcontrolset\services\tcpip\parameters /v DisabledComponents /t REG_DWORD /d 0xffffffff /f
+Write-Host ""
+
 # Enable Autotray
 Write-Host "Enabling Autotray..." -ForegroundColor Green
 reg add hklm\software\microsoft\windows\currentversion\explorer /v EnableAutoTray /t REG_DWORD /d 0 /f
@@ -282,6 +292,21 @@ reg delete "hkcu\software\microsoft\windows\currentversion\run" /v "OneDriveSetu
 Write-Host "Hide VMware tools icon"
 reg add "hku\temp\software\VMware, Inc.\VMware Tools" /v "ShowTray" /d 0 /t REG_DWORD /f
 reg add "hklm\software\VMware, Inc.\VMware Tools" /v "ShowTray" /d 0 /t REG_DWORD /f
+# Disable lock screen notifications
+Write-Host "Disabling lock screen notifications..."
+reg add "hku\temp\software\microsoft\windows\currentversion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\microsoft\windows\currentversion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
+# Set feedback frequency to never
+Write-Host "Setting feedback frequency to never..."
+reg add "hku\temp\software\microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_DWORD /d 0 /f
+# Set Explorer default to This PC instead of Quick Access
+Write-Host "Changing default Explorer view to This PC..."
+reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v LaunchTo /t REG_DWORD /d 1 /f
+# Disable show frequent/recent files/folders in Quick Access
+Write-Host "Disabling show recent files/folders in Quick Access..."
+reg add "hku\temp\software\microsoft\windows\currentversion\explorer" /v ShowFrequent /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\microsoft\windows\currentversion\explorer" /v ShowRecent /t REG_DWORD /d 0 /f
 # Show file extension in explorer
 Write-Host "Show file extensions in File Explorer"
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v HideFileExt /d 0 /t REG_DWORD /f
@@ -464,6 +489,15 @@ Write-Host ""
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search' -Name 'AllowSearchToUseLocation' -PropertyType DWORD -Value '0' | Out-Null
 New-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search' -Name 'ConnectedSearchUseWeb' -PropertyType DWORD -Value '0' | Out-Null
 #New-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search' -Name 'SearchboxTaskbarMode' -PropertyType DWORD -Value '1' | Out-Null
+Write-Host ""
+
+# Set power configuration
+Write-Host "Disabling Hibernate"
+powercfg -h off
+Write-Host "Setting monitor timeout"
+powercfg -change -monitor-timeout-ac 30
+Write-Host "Disabling sleep timeout"
+powercfg -change -standby-timeout-ac 0
 Write-Host ""
 
 #<#

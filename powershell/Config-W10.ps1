@@ -232,17 +232,40 @@ Write-Host "Disabling Security Center notifications..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\notifications\settings\Windows.SystemToast.SecurityAndMaintenance" /v Enabled /d 0 /t REG_DWORD  /f
 reg add "hkcu\software\microsoft\windows\currentversion\notifications\settings\Windows.SystemToast.SecurityAndMaintenance" /v Enabled /d 0 /t REG_DWORD  /f
 # Disable OneDrive Setup
+Write-Host "Disabling OneDrive Setup..." -ForegroundColor Green
 reg delete "hku\temp\software\microsoft\windows\currentversion\run" /v "OneDriveSetup" /f
 reg delete "hkcu\software\microsoft\windows\currentversion\run" /v "OneDriveSetup" /f
+# Disable Game Mode
+Write-Host "Disabling Game Mode..."
+reg add "hku\temp\software\microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 0 /f
+# Disable lock screen notifications
+Write-Host "Disabling lock screen notifications..."
+reg add "hku\temp\software\microsoft\windows\currentversion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\microsoft\windows\currentversion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
+# Set feedback frequency to never
+Write-Host "Setting feedback frequency to never..."
+reg add "hku\temp\software\microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_DWORD /d 0 /f
+# Set Explorer default to This PC instead of Quick Access
+Write-Host "Changing default Explorer view to This PC..."
+reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v LaunchTo /t REG_DWORD /d 1 /f
+# Disable show frequent/recent files/folders in Quick Access
+Write-Host "Disabling show recent files/folders in Quick Access..."
+reg add "hku\temp\software\microsoft\windows\currentversion\explorer" /v ShowFrequent /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\microsoft\windows\currentversion\explorer" /v ShowRecent /t REG_DWORD /d 0 /f
 # Show file extension in explorer
+Write-Host "Enabling show file extension in explorer..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v HideFileExt /d 0 /t REG_DWORD /f
 # Show user files shortcut on desktop
+Write-Host "Enable show user file icons on desktop..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\HideDesktopIcons\NewStartPanel" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /d /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\HideDesktopIcons\ClassicStartMenu" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /d /t REG_DWORD /f
 # Show This PC shortcut on desktop
+Write-Host "Enable show This PC icon on desktop" -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\HideDesktopIcons\ClassicStartMenu" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /d 0 /t REG_DWORD /f
 # Set taskbar settings
+Write-Host "Set taskbar display settings..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v TaskbarGlomLevel /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v TaskbarSmallIcons /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v ShowTaskViewButton /d 0 /t REG_DWORD /f
@@ -268,6 +291,15 @@ Write-Host ""
 # Disable New Network Dialog
 Write-Host "Disabling New Network Dialog" -ForegroundColor Green
 reg add hklm\system\currentcontrolset\control\network\NewNetworkWindowOff
+Write-Host ""
+
+# Set power configuration
+Write-Host "Disabling Hibernate"
+powercfg -h off
+Write-Host "Setting monitor timeout"
+powercfg -change -monitor-timeout-ac 30
+Write-Host "Disabling sleep timeout"
+powercfg -change -standby-timeout-ac 0
 Write-Host ""
 
 # Enable RDP
