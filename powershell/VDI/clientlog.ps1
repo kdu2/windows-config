@@ -14,11 +14,11 @@ $username = $env:USERNAME
 $date = Get-Date -Format "yyyy-MM-dd"
 $time = Get-Date -Format "hh:mm:sstt"
 
-# extract classroom number from clientname
-$classroom = $clientname.Substring(1,6)
+# extract desktop pool from environment variable after login
+$pool = (Get-ItemProperty -Path 'HKCU:\Volatile Environment' -Name ViewClient_Launch_ID).ViewClient_Launch_ID
 
-# list of valid classrooms
-$classrooms = Get-Content "\\server\share\vdiclassrooms.txt"
+# list of valid pools
+$pools = Get-Content "\\server\share\pools.txt"
 
 # log save path
 $logfile = "\\server\share\logs\clients-$date.log"
@@ -29,13 +29,11 @@ While ($computername.Length -lt 14) { $computername = "$computername " }
 $logentry = "$time - $clientname | $computername | $username"
 
 # check if classroom is valid
-if ($classrooms -contains $classroom) {
+if ($pools -contains $pool) {
     # create the daily log file if it doesn't exist
-    if (!(Test-Path $logfile))
-    {
+    if (!(Test-Path $logfile)) {
         Write-Output $date | Out-File -Append $logfile
     }
     # record zero client name, computer name and username
     Write-Output $logentry | Out-File -Append $logfile
-
 }
