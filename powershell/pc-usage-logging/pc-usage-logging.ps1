@@ -29,9 +29,12 @@ switch -Wildcard ($os_name) {
 }
 
 # network info
-$nic = Get-WmiObject -Class win32_networkadapterconfiguration -Filter "DHCPEnabled='True'" | where { $_.IPAddress -ne $null }
-$mac_address = $nic.MACAddress
-$ip_address = $nic.IPAddress[0]
+#$nic = Get-WmiObject -Class win32_networkadapterconfiguration -Filter "DHCPEnabled='True'" | where { $_.IPAddress -ne $null }
+#$mac_address = $nic.MACAddress
+#$ip_address = $nic.IPAddress[0]
+$local_connection = Test-Connection -Count 1 -ComputerName $computer_name
+$ip_address = $local_connection.IPV4Address
+$mac_address = (Get-WmiObject -Class win32_networkadapterconfiguration | where { $_.IPAddress -contains $ip_address }).MACAddress
 
 # hardware info
 $processor_info = (Get-WmiObject -Class win32_processor).name
