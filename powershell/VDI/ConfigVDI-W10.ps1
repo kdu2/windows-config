@@ -85,6 +85,7 @@ $apps = @(
     "Microsoft.BingWeather"
     "Microsoft.FreshPaint"
     "Microsoft.Getstarted"
+    "Microsoft.BingTranslator"
     "Microsoft.MicrosoftOfficeHub"
     "Microsoft.MicrosoftSolitaireCollection"
     #"Microsoft.MicrosoftStickyNotes"
@@ -101,8 +102,8 @@ $apps = @(
     #"Microsoft.WindowsSoundRecorder"
     #"Microsoft.WindowsStore"
     "Microsoft.XboxApp"
-    "Microsoft.ZuneMusic"
-    "Microsoft.ZuneVideo"
+    #"Microsoft.ZuneMusic"
+    #"Microsoft.ZuneVideo"
     "microsoft.windowscommunicationsapps"
     "Microsoft.MinecraftUWP"
 
@@ -270,71 +271,76 @@ reg add hklm\software\policies\microsoft\windows\OneDrive /v DisableFileSyncNGSC
 Write-Host ""
 
 # Configure default user registry hive
-Write-Host "Loading default user hive"
+Write-Host "Loading default user hive" -ForegroundColor Green
 reg load "hku\temp" "c:\users\default\ntuser.dat"
 # Disable Security Center notifications
 Write-Host "Disabling Security Center notifications..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\notifications\settings\Windows.SystemToast.SecurityAndMaintenance" /v Enabled /d 0 /t REG_DWORD  /f
 # Disable OneDrive Setup
-Write-Host "Disabling OneDrive setup on login..."
+Write-Host "Disabling OneDrive setup on login..." -ForegroundColor Green
 reg delete "hku\temp\software\microsoft\windows\currentversion\run" /v "OneDriveSetup" /f
 reg delete "hkcu\software\microsoft\windows\currentversion\run" /v "OneDriveSetup" /f
 # Hide VMware tools icon
-Write-Host "Hide VMware tools icon"
+Write-Host "Hide VMware tools icon" -ForegroundColor Green
 reg add "hku\temp\software\VMware, Inc.\VMware Tools" /v "ShowTray" /d 0 /t REG_DWORD /f
 reg add "hklm\software\VMware, Inc.\VMware Tools" /v "ShowTray" /d 0 /t REG_DWORD /f
 # Disable Game Mode
-Write-Host "Disabling Game Mode..."
+Write-Host "Disabling Game Mode..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 0 /f
 # Disable lock screen notifications
-Write-Host "Disabling lock screen notifications..."
+Write-Host "Disabling lock screen notifications..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
 reg add "hku\temp\software\microsoft\windows\currentversion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK" /t REG_DWORD /d 0 /f
 # Set feedback frequency to never
-Write-Host "Setting feedback frequency to never..."
+Write-Host "Setting feedback frequency to never..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d 0 /f
 reg add "hku\temp\software\microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_DWORD /d 0 /f
 # Set Explorer default to This PC instead of Quick Access
-Write-Host "Changing default Explorer view to This PC..."
+Write-Host "Changing default Explorer view to This PC..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v LaunchTo /t REG_DWORD /d 1 /f
 # Disable show frequent/recent files/folders in Quick Access
-Write-Host "Disabling show recent files/folders in Quick Access..."
+Write-Host "Disabling show recent files/folders in Quick Access..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer" /v ShowFrequent /t REG_DWORD /d 0 /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer" /v ShowRecent /t REG_DWORD /d 0 /f
 # Show file extension in explorer
-Write-Host "Show file extensions in File Explorer"
+Write-Host "Show file extensions in File Explorer" -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v HideFileExt /d 0 /t REG_DWORD /f
 # Show user files shortcut on desktop
-Write-Host "Show user folder and This PC on desktop"
+Write-Host "Show user folder and This PC on desktop" -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\HideDesktopIcons\NewStartPanel" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\HideDesktopIcons\ClassicStartMenu" /v "{59031a47-3f72-44a7-89c5-5595fe6b30ee}" /d 0 /t REG_DWORD /f
 # Show This PC shortcut on desktop
-Write-Host "Show This PC and User folder icons on desktop"
+Write-Host "Show This PC and User folder icons on desktop" -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\HideDesktopIcons\ClassicStartMenu" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /d 0 /t REG_DWORD /f
 # Set taskbar settings
-Write-Host "Set taskbar settings: always combine, large icons, hide search and taskview"
+Write-Host "Set taskbar settings: always combine, large icons, hide search and taskview" -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v TaskbarGlomLevel /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v TaskbarSmallIcons /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v ShowTaskViewButton /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /d 0 /t REG_DWORD /f 
+# Disable Edge first run
+Write-Host "Disabling Microsoft Edge first run..." -ForegroundColor Green
+reg add "hku\temp\software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\microsoft.microsoftedge_8wekyb3d8bbwe\MicrosoftEdge\FirstRun" /v "LastFirstRunVersionDelivered" /t REG_DWORD /d 1 /f
+reg add "hku\temp\software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\microsoft.microsoftedge_8wekyb3d8bbwe\MicrosoftEdge\Main" /v "IE10TourShown" /t REG_DWORD /d 1 /f
+reg add "hku\temp\software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\microsoft.microsoftedge_8wekyb3d8bbwe\MicrosoftEdge\Main" /v "DisallowDefaultBrowserPrompt" /t REG_DWORD /d 1 /f
 # Disable auto-update and downloads of Store apps
-Write-Host "Disable auto-update and download Store apps"
+Write-Host "Disable auto-update and download Store apps" -ForegroundColor Green
 reg add "hku\temp\software\policies\microsoft\WindowsStore" /v AutoDownload /d 2 /t REG_DWORD /f
 # Disable Transparency effects
-Write-Host "Disable transparency effects"
+Write-Host "Disable transparency effects" -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\themes\personalize" /v EnableTransparency /d 0 /t REG_DWORD /f
 reg unload "hku\temp"
 Write-Host ""
 
 # Disable Windows Defender
-Write-Host "Disabling Windows Defender"
+Write-Host "Disabling Windows Defender" -ForegroundColor Cyan
 reg add "hklm\software\policies\microsoft\Windows Defender" /v DisableAntiSpyware /d 1 /t REG_DWORD /f
 reg delete "hklm\software\microsoft\windows\currentversion\run" /v WindowsDefender /f
 Write-Host""
 
 # Disable Cortana:
-Write-Host "Disable Cortana"
+Write-Host "Disable Cortana" -ForegroundColor Cyan
 reg add "hklm\software\policies\microsoft\windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f
 Write-Host ""
 
@@ -344,12 +350,12 @@ reg add hklm\software\microsoft\windows\currentversion\policies\system /v Enable
 Write-Host ""
 
 # Disable App Auto-install after 1st login
-Write-Host "Disabling App Auto-install after 1st login"
+Write-Host "Disabling App Auto-install after 1st login" -ForegroundColor Green
 reg add HKLM\Software\Policies\Microsoft\Windows\CloudContent /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f
 Write-Host ""
 
 # Disable Logon Wallpaper
-Write-Host "Disabling Logon Wallpaper"
+Write-Host "Disabling Logon Wallpaper" -ForegroundColor Green
 reg add hklm\software\policies\microsoft\windows\system /v DisableLogonBackgroundImage /t REG_DWORD /d 1 /f
 Write-Host ""
 
