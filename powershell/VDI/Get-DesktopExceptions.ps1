@@ -4,27 +4,29 @@
 .DESCRIPTION
    Get-DesktopExceptions will look in the View LDAP datastore to find the snapshot IDs used by the desktops and the pool.
    It compares these values to find any desktops that do not match the pool.
-   In order to run this script, the Quest Active Directory Cmdlets will need to be installed.
 .PARAMETER ConnectionServer
    The View Connection server that you want to run this script against.
 #>
 
-$ConnectionServer = "vcenterserver"
+param([string]$ConnectionServer)
 
-$date = Get-Date -Format "MM-dd-yyyy"
-$log = "DesktopExceptions-$date.log"
+if ($ConnectionServer -eq $null) {
+    Write-Host "Please re-run the script with a valid argument for Connection Server"
+    exit
+}
 
-Function Get-Pools
-{
-    param($ConnectionServer)
+function Get-Pools ($ConnectionServer) {
+    $ldap = "LDAP://$ConnectionServer`:389/OU=Server Groups,dc=vdi,dc=vmware,dc=int"
+    $root = New-Object System.DirectoryServices.DirectoryEntry $ldap
+    $query = new-Object System.DirectoryServices.DirectorySearcher
+    $query.searchroot = $root
+    $query.Filter = "(&(objectClass=pae-ServerPool))"
+    $result = $query.findall()
+    $pools = $result.getdirectoryentry()
 
     $PoolList = @()
 
-    $arrIncludedProperties = "cn,name,pae-DisplayName,pae-MemberDN,pae-SVIVmParentVM,pae-SVIVmSnapshot,pae-SVIVmSnapshotMOID".Split(",")
-    $pools = Get-QADObject -Service $ConnectionServer -DontUseDefaultIncludedProperties -IncludedProperties $arrIncludedProperties -LdapFilter "(objectClass=pae-ServerPool)" -SizeLimit 0 | Sort-Object "pae-DisplayName" | Select-Object Name, "pae-DisplayName", "pae-SVIVmParentVM" , "pae-SVIVmSnapshot", "pae-SVIVmSnapshotMOID", "pae-MemberDN"
-
-    ForEach ($pool in $pools)
-    {
+    foreach ($pool in $pools) {
         $obj = New-Object PSObject -Property @{
             "cn" = $pool.cn
             "name" = $pool.name
@@ -32,51 +34,70 @@ Function Get-Pools
             "MemberDN" = $pool."pae-MemberDN"
             "SVIVmParentVM" = $pool."pae-SVIVmParentVM"
             "SVIVmSnapshot" = $pool."pae-SVIVmSnapshot"
-            "SVIVmSnapshotMOID" = $pool."pae-SVIVmSnapshotMOID" }
+            "SVIVmSnapshotMOID" = $pool."pae-SVIVmSnapshotMOID"
+        }
         $PoolList += $obj
     }
-    Return $PoolList
+    return $PoolList
 }
 
-Function Get-Desktop
-{
-    param($MemberDN, $ConnectionServer)
+function Get-Desktop ($MemberDN, $ConnectionServer) {
+    $ldap = "LDAP://$ConnectionServer`:389/OU=Servers,dc=vdi,dc=vmware,dc=int"
+    $root = New-Object System.DirectoryServices.DirectoryEntry $ldap
+    $query = new-Object System.DirectoryServices.DirectorySearcher
+    $query.searchroot = $root
+    $query.Filter = "(&(objectClass=pae-VM)(distinguishedName=$MemberDN))"
+    $result = $query.findone()
+    $Desktop = $result.getdirectoryentry()
 
-    $arrIncludedProperties = "cn,name,pae-DisplayName,pae-MemberDN,pae-SVIVmParentVM,pae-SVIVmSnapshot,pae-SVIVmSnapshotMOID".Split(",")
-    $Desktop = Get-QADObject -Service $ConnectionServer -DontUseDefaultIncludedProperties -IncludedProperties $arrIncludedProperties -LdapFilter "(&(objectClass=pae-Server)(distinguishedName=$MemberDN))" -SizeLimit 0 | Sort-Object "pae-DisplayName" | Select-Object Name, "pae-DisplayName", "pae-SVIVmParentVM" , "pae-SVIVmSnapshot", "pae-SVIVmSnapshotMOID"
-
-    Return $Desktop
+    return $Desktop
 }
 
 $DesktopExceptions = @()
-$pools = Get-Pools -ConnectionServer $ConnectionServer
 
-ForEach($pool in $pools)
-{
+$pools = Get-Pools -ConnectionServer $ConnectionServer
+foreach ($pool in $pools) {
+    $poolname = $pool.name
     $MemberDNs = $pool.memberdn
-    ForEach($MemberDN in $MemberDNs)
-    {
+    foreach ($MemberDN in $MemberDNs) {
         $Desktop = Get-Desktop -MemberDN $MemberDN -ConnectionServer $ConnectionServer
-        If($Desktop."pae-SVIVmSnapshotMOID" -ne $pool.SVIVmSnapshotMOID)
-        {
+        $desktopname = $Desktop."pae-DisplayName"
+        Write-Host "checking $poolname/$desktopname"
+        if ($Desktop."pae-SVIVmSnapshotMOID" -ne $pool.SVIVmSnapshotMOID) {
             $obj = New-Object PSObject -Property @{
-                "PoolName" = $pool.DisplayName
-                "DisplayName" = $Desktop."pae-DisplayName"
-                "PoolSnapshot" = $pool.SVIVmSnapshot
-                "PoolSVIVmSnapshotMOID" = $pool.SVIVmSnapshotMOID
-                "DesktopSVIVmSnapshot" = $Desktop."pae-SVIVmSnapshot"
-                "DesktopSVIVmSnapshotMOID" = $Desktop."pae-SVIVmSnapshotMOID"
-                "DesktopDN" = $MemberDN }
+                "PoolName" = $pool.DisplayName[0]
+                "DisplayName" = $Desktop."pae-DisplayName"[0]
+                "PoolSnapshot" = $pool.SVIVmSnapshot[0]
+                "PoolSVIVmSnapshotMOID" = $pool.SVIVmSnapshotMOID[0]
+                "DesktopSVIVmSnapshot" = $Desktop."pae-SVIVmSnapshot"[0]
+                "DesktopSVIVmSnapshotMOID" = $Desktop."pae-SVIVmSnapshotMOID"[0]
+                "DesktopDN" = $MemberDN[0] }
             $DesktopExceptions += $obj
         }
     }
 }
 
-If($DesktopExceptions -eq $null)
-{
-    Write-Output "All desktops in $pool are currently using the correct snapshots." | Out-File -Append $log
-}
-Else
-{
-    Write-Output $DesktopExceptions | Select-Object DisplayName,PoolName,PoolSnapshot,DesktopSVIVmSnapshot | Out-File -Append $log
+if ($DesktopExceptions -eq $null) {
+    Write-Host "All desktops are using the correct snapshot."
+} else {
+    $date = Get-Date -Format "yyyy-MM-dd hh.mm.sstt"
+    Write-Output $DesktopExceptions | select DisplayName,PoolName,PoolSnapshot,DesktopSVIVmSnapshot | sort DisplayName | Export-Csv "C:\logs\desktopexceptions-$date.csv" -NoTypeInformation
+    Write-Output $DesktopExceptions | select DisplayName,PoolName,PoolSnapshot,DesktopSVIVmSnapshot | sort DisplayName
+
+    $confirm = Read-Host -Prompt "Do you want to recompose detected exceptions? Type `"Recompose`" to confirm."
+
+    if ($confirm -like "recompose") {
+        Add-PSSnapin vmware.vimautomation.core
+        Add-PSSnapin vmware.view.broker
+
+        $viewpools = Get-Pool
+
+        foreach ($Exception in $DesktopExceptions) {
+            Write-Host "Recomposing" $Exception.Displayname
+            $currentpool = $viewpools | where { $_.pool_id -eq $Exception.PoolName }
+            Get-DesktopVM -Name $Exception.DisplayName | Send-LinkedCloneRecompose -parentVMPath $currentpool.parentVMPath -parentSnapshootPath $currentpool.parentVMSnapshotPath -schedule ((Get-Date).AddMinutes(1)) -ForceLogoff $true -StopOnError $false
+        }
+    } else {
+        Write-Host "Recompose not confirmed. Exiting..."
+    }
 }
