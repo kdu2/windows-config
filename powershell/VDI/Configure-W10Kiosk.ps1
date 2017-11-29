@@ -101,7 +101,7 @@ $ShellLauncherClass.SetCustomShell($vdiclient_SID, "C:\Program Files (x86)\VMwar
 
 # Set Explorer as the shell for administrators.
 
-#$ShellLauncherClass.SetCustomShell($Admins_SID, "explorer.exe")
+$ShellLauncherClass.SetCustomShell($Admins_SID, "explorer.exe")
 
 # View all the custom shells defined.
 
@@ -110,11 +110,11 @@ Get-WmiObject -namespace $NAMESPACE -computer $COMPUTER -class WESL_UserSetting 
 
 # Enable Shell Launcher
 
-#$ShellLauncherClass.SetEnabled($TRUE)
+$ShellLauncherClass.SetEnabled($TRUE)
 
-#$IsShellLauncherEnabled = $ShellLauncherClass.IsEnabled()
+$IsShellLauncherEnabled = $ShellLauncherClass.IsEnabled()
 
-#"`nEnabled is set to " + $IsShellLauncherEnabled.Enabled
+"`nEnabled is set to " + $IsShellLauncherEnabled.Enabled
 
 # Remove the new custom shells.
 
