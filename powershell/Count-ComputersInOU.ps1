@@ -1,11 +1,12 @@
-﻿# count computer objects in a specified OU
+﻿# count computer objects
 
-param([String]$searchOU="CN=Computers")
+$OUs = @(
+    "OU=DeptA,DC=Domain",
+    "OU=DeptB,DC=Domain",
+    "OU=DeptC,DC=Domain"
+)
 
-$searchOU = "$searchOU,DC=Domain"
-
-$adcomputercount = get-adcomputer -filter * -searchbase "$searchOU" -properties canonicalname | Group-Object {($_.canonicalname -split "/")[2]}
-
-$OUtotal = $adcomputercount.Count
-
-Write-Host "Total Computers in this OU: $OUtotal"
+foreach ($OU in $OUs) {
+    $total = (Get-ADComputer -filter * -searchbase $OU | Measure-Object).Count
+    Write-Host "$OU`: $total"
+}

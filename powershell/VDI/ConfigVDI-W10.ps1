@@ -270,6 +270,11 @@ Write-Host "Disabling OneDrive..." -ForegroundColor Green
 reg add hklm\software\policies\microsoft\windows\OneDrive /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f
 Write-Host ""
 
+# Disable show last username
+Write-Host "Disabling show last username" -ForegroundColor Cyan
+reg add "hklm\software\microsoft\windows nt\currentversion\winlogon" /v DontDisplayLastUserName /t REG_DWORD /d 1 /f
+Write-Host ""
+
 # Configure default user registry hive
 Write-Host "Loading default user hive" -ForegroundColor Green
 reg load "hku\temp" "c:\users\default\ntuser.dat"
