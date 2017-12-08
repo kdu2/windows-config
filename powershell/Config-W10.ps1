@@ -38,15 +38,6 @@
     Source:                          https://github.com/cluberti/VDI/blob/master/ConfigAsVDI.ps1
     Original Author:                 Carl Luberti/cluberti
     CCCD version managed by:         Kevin Du/kdu2
-    Last Update:                     4-11-2017
-    Version:                         1.0.6
-.LOG
-    1.0.1 - modified sc command to sc.exe to prevent PS from invoking set-content
-    1.0.2 - modified Universal Application section to avoid issues with CopyProfile, updated onedrive removal, updated for TH2
-    1.0.3 - modified services and various settings to fit non VDI image
-    1.0.4 - removed windows update from list to disable, added Redstone apps to remove
-    1.0.5 - removed all tasks and some settings, only keep remove apps and some registry settings
-    1.0.6 - added to registry section: disable security center notifications
 #>
 
 # Parse Params:
@@ -269,6 +260,7 @@ Write-Host "Set taskbar display settings..." -ForegroundColor Green
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v TaskbarGlomLevel /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v TaskbarSmallIcons /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v ShowTaskViewButton /d 0 /t REG_DWORD /f
+reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced\People" /v PeopleBand /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /d 0 /t REG_DWORD /f 
 reg unload "hku\temp"
 Write-Host ""
