@@ -140,6 +140,20 @@ $apps = @(
     "TheNewYorkTimes.NYTCrossword"
     "AdobeSystemsIncorporated.AdobePhotoshopExpress"
     "ActiproSoftwareLLC.562882FEEB491"
+    "DB6EA5DB.CyberLinkMediaSuiteEssentials"
+    "Facebook.Facebook"
+    "flaregamesGmbH.RoyalRevolt2"
+    "Playtika.CaesarsSlotsFreeCasino"
+    "A278AB0D.MarchofEmpires"
+    "KeeperSecurityInc.Keeper"
+    "ThumbmunkeysLtd.PhototasticCollage"
+    "XINGAG.XING"
+    "89006A2E.AutodeskSketchBook"
+    "D5EA27B7.Duolingo-LearnLanguagesforFree"
+    "DolbyLaboratories.DolbyAccess"
+    "SpotifyAB.SpotifyMusic"
+    "A278AB0D.DisneyMagicKingdoms"
+    "WinZipComputing.WinZipUniversal"
 
     # apps which cannot be removed using Remove-AppxPackage
     #"Microsoft.BioEnrollment"
@@ -190,6 +204,16 @@ Write-Host ""
 #Write-Host "Disabling show last username..." -ForegroundColor Green
 #reg add hklm\software\microsoft\windows\currentversion\policies\system /v dontdisplaylastusername /t REG_DWORD /d 1 /f
 #Write-Host ""
+
+# Disable Automatic Windows Update
+Write-Host "Disabling automatic Windows Update" -ForegroundColor Cyan
+reg add HKLM\software\microsoft\windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 1 /f
+Write-Host ""
+
+# Disable Automatic Microsoft Store App Update
+Write-Host "Disabling automatic Microsoft Store app updates" -ForegroundColor Cyan
+reg add hklm\software\policies\microsoft\WindowsStore /v AutoDownload /t REG_DWORD /d 2 /f
+Write-Host ""
 
 # Disable IPv6
 Write-Host "Disabling IPv6..." -ForegroundColor Green
