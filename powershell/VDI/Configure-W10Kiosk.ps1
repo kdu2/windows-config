@@ -60,6 +60,10 @@ try {
 
 $Admins_SID = "S-1-5-32-544"
 
+# This well-known security identifier (SID) corresponds to the BUILTIN\Users group.
+
+$Users_SID = "S-1-5-32-545"
+
 # Create a function to retrieve the SID for a user account on a machine.
 
 function Get-UsernameSID($AccountName) {
@@ -73,7 +77,6 @@ function Get-UsernameSID($AccountName) {
 # Get the SID for a user account named "Cashier". Rename "Cashier" to an existing account on your system to test this script.
 
 #$Cashier_SID = Get-UsernameSID("Cashier")
-$vdiclient_SID = Get-UsernameSID("vdiclient")
 
 # Define actions to take when the shell program exits.
 
@@ -97,7 +100,7 @@ $DefaultShellObject = $ShellLauncherClass.GetDefaultShell()
 
 #$ShellLauncherClass.SetCustomShell($Cashier_SID, "c:\program files\internet explorer\iexplore.exe www.microsoft.com", ($null), ($null), $restart_shell)
 
-$ShellLauncherClass.SetCustomShell($vdiclient_SID, "C:\Program Files (x86)\VMware\VMware Horizon View Client\vmware-view.exe vmware-view://broker/desktop-pool", ($null), ($null), $restart_shell)
+$ShellLauncherClass.SetCustomShell($Users_SID, "C:\Program Files (x86)\VMware\VMware Horizon View Client\vmware-view.exe vmware-view://broker/desktop-pool", ($null), ($null), $restart_shell)
 
 # Set Explorer as the shell for administrators.
 

@@ -37,14 +37,6 @@
     Source:                          https://github.com/cluberti/VDI/blob/master/ConfigAsVDI.ps1
     Original Author:                 Carl Luberti/cluberti
     CCCD version managed by:         Kevin Du/kdu2
-    Last Update:                     April 11, 2017
-    Version:                         1.0.5
-.LOG
-    1.0.1 - modified sc command to sc.exe to prevent PS from invoking set-content
-    1.0.2 - modified Universal Application section to avoid issues with CopyProfile, updated onedrive removal, updated for TH2
-    1.0.3 - modified services and settings to fit CCCD VDI image
-    1.0.4 - added to registry: disable Security Center notifications
-    1.0.5 - added to registry: configure default user settings
 #>
 
 # Parse Params:
