@@ -245,6 +245,11 @@ Write-Host ""
 #reg add hklm\software\policies\microsoft\windows\OneDrive /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f
 #Write-Host ""
 
+# Disable automatic restart sign-on 
+Write-Host "Disabling automatic restart sign-on..." -ForegroundColor Cyan
+reg add hklm\software\microsoft\windows\currentversion\policies\system /v DisableAutomaticRestartSignOn /t REG_DWORD /d 1 /f
+Write-Host ""
+
 # Configure default user registry hive
 reg load "hku\temp" "c:\users\default\ntuser.dat"
 # Disable Security Center notifications
