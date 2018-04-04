@@ -235,6 +235,11 @@ Write-Host ""
 #reg add hklm\software\policies\microsoft\windows\explorer /v DisableNotificationCenter /t REG_DWORD /d 1 /f
 #Write-Host ""
 
+# Disable new app installed notification
+Write-Host "Disabling New app installed notification..." -ForegroundColor Cyan
+reg add hklm\software\policies\microsoft\windows\explorer /v NoNewAppAlert /t REG_DWORD /d 1 /f
+Write-Host ""
+
 # Disable OneDrive
 #Write-Host "Disabling OneDrive..." -ForegroundColor Green
 #reg add hklm\software\policies\microsoft\windows\OneDrive /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f
