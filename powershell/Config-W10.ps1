@@ -70,7 +70,7 @@ $ErrorActionPreference = "SilentlyContinue"
 
 $apps = @(
     # default Windows 10 apps
-    "Microsoft.3DBuilder"
+    #"Microsoft.3DBuilder"
     "Microsoft.Appconnector"
     "Microsoft.BingFinance"
     "Microsoft.BingNews"
@@ -95,8 +95,8 @@ $apps = @(
     #"Microsoft.WindowsSoundRecorder"
     #"Microsoft.WindowsStore"
     "Microsoft.XboxApp"
-    "Microsoft.ZuneMusic"
-    "Microsoft.ZuneVideo"
+    #"Microsoft.ZuneMusic"
+    #"Microsoft.ZuneVideo"
     "microsoft.windowscommunicationsapps"
     "Microsoft.MinecraftUWP"
 
@@ -104,7 +104,7 @@ $apps = @(
     "Microsoft.CommsPhone"
     "Microsoft.ConnectivityStore"
     "Microsoft.Messaging"
-    "Microsoft.Office.Sway"
+    #"Microsoft.Office.Sway"
     "Microsoft.WindowsFeedbackHub"
 
     # Redstone apps
@@ -296,6 +296,25 @@ reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced" /v ShowTaskViewButton /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\microsoft\windows\currentversion\explorer\advanced\People" /v PeopleBand /d 0 /t REG_DWORD /f
 reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /d 0 /t REG_DWORD /f 
+# Disable Edge first run
+Write-Host "Disabling Microsoft Edge first run..." -ForegroundColor Green
+reg add "hku\temp\software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\microsoft.microsoftedge_8wekyb3d8bbwe\MicrosoftEdge\FirstRun" /v "LastFirstRunVersionDelivered" /t REG_DWORD /d 1 /f
+reg add "hku\temp\software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\microsoft.microsoftedge_8wekyb3d8bbwe\MicrosoftEdge\Main" /v "IE10TourShown" /t REG_DWORD /d 1 /f
+reg add "hku\temp\software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppContainer\Storage\microsoft.microsoftedge_8wekyb3d8bbwe\MicrosoftEdge\Main" /v "DisallowDefaultBrowserPrompt" /t REG_DWORD /d 1 /f
+# Disable 3rd party apps
+Write-Host "Disabling 3rd party apps..." -ForegroundColor Green
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SystemPaneSuggestionsEnabled /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v PreInstalledAppsEnabled /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v OemPreInstalledAppsEnabled /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v ContentDeliveryAllowed /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v FeatureManagementEnabled /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v PreInstalledAppsEverEnabled /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RemediationRequired /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SoftLandingEnabled /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContentEnabled /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338388Enabled" /t REG_DWORD /d 0 /f
+reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy" /v Disabled /t REG_DWORD /d 1 /f
 reg unload "hku\temp"
 Write-Host ""
 
@@ -312,6 +331,11 @@ Write-Host ""
 # Disable App Auto-install after 1st login
 Write-Host "Disabling App Auto-install after 1st login" -ForegroundColor Green
 reg add HKLM\Software\Policies\Microsoft\Windows\CloudContent /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f
+Write-Host ""
+
+# Disable show recently added in start menu
+Write-Host "Disabling show recently added in start menu" -ForegroundColor Cyan
+reg add HKLM\Software\Policies\Microsoft\Windows\Explorer /v HideRecentlyAddedApps /t REG_DWORD /d 1 /f
 Write-Host ""
 
 # Disable New Network Dialog

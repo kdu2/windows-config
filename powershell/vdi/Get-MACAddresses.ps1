@@ -1,4 +1,4 @@
-﻿# script to extract MAC addresses from computers loaded from a text list
+﻿# script to extract MAC addresses from list of computers
 
 # specify pool prefix and number of vm's
 param([string]$prefix,[int]$max)
