@@ -11,6 +11,6 @@ $date = Get-Date -Format "yyyyMMdd-hh-mm-ss-tt"
 $backups = Get-ChildItem -Path "$backupfolder\$computername" -File -Filter "$username*.trans.zip"
 
 foreach ($backup in $backups) {
-    Write-Output "Restoring $($backup.trimend(".trans.zip"))..."
-    \\server\share\folder\Transwiz.exe /RESTORE /TRANSFERFILE "$backupfolder\$computername\$($backup.name)" /LOG "$backupfolder\$computername\transwiz-restore-one-$computername-$($backup.trimend(".trans.zip"))-$date.log"
+    Write-Output "Restoring $($backup.name.trimend(".trans.zip"))..."
+    \\server\share\folder\Transwiz.exe /RESTORE /TRANSFERFILE "$($backup.fullname)" /LOG "$backupfolder\$computername\$username\transwiz-restore-one-$computername-$username-$date.log"
 }

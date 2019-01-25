@@ -10,8 +10,8 @@ if ($username -eq $null) { exit 1 }
 $date = Get-Date -Format "yyyyMMdd-hh-mm-ss-tt"
 
 if (!(Test-Path "$backupfolder\$computername")) {
-    New-Item -ItemType Directory -Path "$backupfolder\$computername"
+    New-Item -ItemType Directory -Path "$backupfolder\$computername\$username"
 }
 
 Write-Output "Backing up $username..."
-\\server\share\folder\Transwiz.exe /BACKUP /SOURCEACCOUNT "$domain\$username" /TRANSFERFILE "$backupfolder\$computername\$username.trans.zip" /LOG "$backupfolder\$computername\transwiz-backup-one-$computername-$username-$date.log"
+\\server\share\folder\Transwiz.exe /BACKUP /SOURCEACCOUNT "$domain\$username" /TRANSFERFILE "$backupfolder\$computername\$username\$username.trans.zip" /LOG "$backupfolder\$computername\$username\transwiz-backup-one-$computername-$username-$date.log"

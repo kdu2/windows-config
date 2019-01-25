@@ -5,9 +5,9 @@ param(
 
 $date = Get-Date -Format "yyyyMMdd-hh-mm-ss-tt"
 
-$backups = Get-ChildItem -Path "$backupfolder\$computername" -File -Filter "*.trans.zip"
+$backups = Get-ChildItem -Path "$backupfolder\$computername" -File -Filter "*.trans.zip" -Recurse
 
 foreach ($backup in $backups) {
-    Write-Output "Restoring $($backup.trimend(".trans.zip"))..."
-    \\server\share\folder\Transwiz.exe /RESTORE /TRANSFERFILE "$backupfolder\$computername\$($backup.name)" /LOG "$backupfolder\$computername\transwiz-restore-all-$computername-$($backup.trimend(".trans.zip"))-$date.log" | Out-Null
+    Write-Output "Restoring $($backup.name.trimend(".trans.zip"))..."
+    \\server\share\folder\Transwiz.exe /RESTORE /TRANSFERFILE "$($backup.fullname)" /LOG "$backupfolder\$computername\$($backup.name.trimend(".trans.zip"))\transwiz-restore-all-$computername-$($backup.name.trimend(".trans.zip"))-$date.log" | Out-Null
 }
