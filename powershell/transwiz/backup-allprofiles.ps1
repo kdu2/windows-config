@@ -15,6 +15,8 @@ if (!(Test-Path "$backupfolder\$computername")) {
 foreach ($userprofile in $profiles) {
     $UserSID = $userprofile.SID
     $user = ([ADSI]"LDAP://<SID=$UserSID>").Properties["samaccountname"]
-    Write-Output "Backing up $user..."
-    \\server\share\folder\Transwiz.exe /BACKUP /SOURCEACCOUNT "$domain\$user" /TRANSFERFILE "$backupfolder\$computername\$user.trans.zip" /LOG "$backupfolder\$computername\transwiz-backup-all-$computername-$user-$date.log"
+    if (Test-Path -Path $userprofile.localpath) {
+        Write-Output "Backing up $user..."
+        \\server\share\folder\Transwiz.exe /BACKUP /SOURCEACCOUNT "$domain\$user" /TRANSFERFILE "$backupfolder\$computername\$user.trans.zip" /LOG "$backupfolder\$computername\transwiz-backup-all-$computername-$user-$date.log"
+    }
 }
