@@ -12,8 +12,6 @@ $desktopIDs = "windows7_64Guest",
 "windows8Guest",
 "windows9_64Guest",
 "windows9Guest",
-"winLonghorn64Guest",
-"winLonghornGuest",
 "winVista64Guest",
 "winVistaGuest",
 "winXPPro64Guest",
@@ -28,7 +26,9 @@ foreach ($vm in $VMs) {
         $vm | Add-Member -MemberType NoteProperty -Name OS -Value $vm.guestid
     }
 }
-Add-Content -Path ".\VDC-VM`'s.csv" -Value "sep=," -Force
 
-$VMs | Select-Object Name,OS,vmhost,Folder | Sort-Object -Property folder,os | ConvertTo-Csv -NoTypeInformation | Out-File -FilePath ".\VDC-VM`'s.csv" -Append
-Write-Output "Total VMs: $($VMs.count)" | Out-Host
+Remove-Item -Path ".\VDC-VM`'s.csv" -Force -ErrorAction SilentlyContinue
+
+$VMs | Select-Object Name,OS,powerstate,vmhost,Folder | Sort-Object -Property folder,os | Export-Csv -NoTypeInformation -Path ".\VDC-VM`'s.csv"
+$onlineVMcount = ($VMs | Where-Object { $_.powerstate -eq "poweredon" }).count
+Write-Output "$onlineVMcount/$($VMs.count) VM's online" | Out-Host

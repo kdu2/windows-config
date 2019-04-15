@@ -1,24 +1,47 @@
-﻿# remove app stacks that did not detach correctly after logoff
+# remove app stacks that did not detach correctly after logoff
 
-# specify name of file exported from view administrator containing list of machines
-param([string]$list)
+param([string]$pool)
 
 Add-PSSnapin VMware.VimAutomation.Core -ErrorAction SilentlyContinue
 
-Connect-VIServer vcenterserver
+Connect-VIServer vcenter.domain
 
-$classroompool = Get-Content $list
+switch ($pool) {
+	"pool1" {
+		$max = 200
+		$prefix = "prefix1"
+	}
+	"pool2" {
+		$max = 100
+		$prefix = "prefix2"
+	}
+	default {
+		exit 1
+	}
+}
 
-foreach ($linkedclone in $classroompool) {
+for ($i = 1; $i -le $max; $i++) {
+    $linkedclone = "$prefix" + $i.ToString() + "V"
     $disks = Get-HardDisk -VM $linkedclone
-    foreach ($disk in $disks) {
+    foreach ($disk in $disks)
+    {
         $diskname = $disk.Filename
-        $disksize = $disk.CapacityGB
-        # assumes app stack volume size of 20GB
-        if (($diskname -like "*folder/path/*") -and ($disksize -eq 20)) {
-            Write-Host "VM $linkedclone - removing $diskname"
-            Write-Output "VM $linkedclone - removing $diskname" | Out-File -Append "appstack-removal-$list.log"
-            Remove-HardDisk $disk -Confirm:$false 2>> "appstack-removal-$list.log"
+		$disksize = $disk.CapacityGB
+		# replace datastore path with your own if not using default name from app volumes and default disk size
+        if (($diskname -like "*cloudvolumes/apps/*") -and ($disksize -eq 20))
+        {
+            write-output "VM $linkedclone - removing $diskname" | Out-File -Append "appstack-removal-$pool.log"
+            Remove-HardDisk $disk -Confirm:$false
         }
     }
 }
+
+$SmtpClient = New-Object system.net.mail.smtpClient
+$SmtpClient.host = "smtp.domain.com"   #Change to a SMTP server in your environment
+$MailMessage = New-Object system.net.mail.mailmessage
+$MailMessage.from = "vdiDesktopSupport@domain.com"   #Change to email address you want emails to be coming from
+$MailMessage.To.add("vdiDesktopSupport@domain.com")    #Change to email address you want send to
+$MailMessage.IsBodyHtml = 1
+$MailMessage.Subject = "Remove AppStacks from $pool"    #Change to set your email subject
+$MailMessage.Body = "Removal of AppStacks from $pool has Started, please verify all AppStack datastores do not have any remaining VMs"    #Change to set the body message of the email
+$SmtpClient.Send($MailMessage)

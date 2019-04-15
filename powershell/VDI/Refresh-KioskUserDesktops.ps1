@@ -8,7 +8,7 @@ Add-PSSnapin "vmware.view.broker"
 $desktops = Get-RemoteSession -username "$domain\$username" -pool_id $pool
 
 foreach ($desktop in $desktops) {
-    Get-DesktopVM -pool_id $pool -Name $desktop.dnsname.trimend("$domain") | Send-LinkedCloneRefresh -schedule ((Get-Date).AddMinutes(1)) -ForceLogoff $true -stopOnError $false
+    Get-DesktopVM -pool_id $pool -Name $desktop.dnsname.trimend(".$domain") | Send-LinkedCloneRefresh -schedule ((Get-Date).AddMinutes(1)) -ForceLogoff $true -stopOnError $false
 }
  
 $SmtpClient = New-Object system.net.mail.smtpClient
