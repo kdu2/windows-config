@@ -18,8 +18,8 @@ function Get-Pools ($ConnectionServer) {
             "name" = $pool.name[0]
             "DisplayName" = $pool."pae-DisplayName"[0]
             "MemberDN" = $pool."pae-MemberDN"[0]
-            "SVIVmParentVM" = $pool."pae-SVIVmParentVM"[0]
-            "SVIVmSnapshot" = $pool."pae-SVIVmSnapshot"[0]
+            "SVIVmParentVM" = $pool."pae-SVIVmParentVM"[0] | Split-Path -Leaf
+            "SVIVmSnapshot" = $pool."pae-SVIVmSnapshot"[0] | Split-Path -Leaf
             "SVIVmSnapshotMOID" = $pool."pae-SVIVmSnapshotMOID"[0]
         }
         $PoolList += $obj

@@ -1,10 +1,21 @@
 param(
+    $server = "SERVER",
     $pool = "POOL",
     $domain = "domainfqdn",
     $username = "user"
 )
 
-Add-PSSnapin "vmware.view.broker"
+Import-Module vmware.hv.helper
+
+Connect-HVServer -Server $server
+
+$desktops = Get-HVLocalSession | Where-Object { $_.NamesData.UserName -eq "$domain\$username" }
+
+Get-HVPool -PoolName $pool | Start-HVPool 
+
+Get-HVMachine -
+
+Get-HVLocalSession
 $desktops = Get-RemoteSession -username "$domain\$username" -pool_id $pool
 
 foreach ($desktop in $desktops) {
@@ -18,5 +29,5 @@ $MailMessage.from = "SENDER_EMAIL"      # Change to email address you want email
 $MailMessage.To.add("RECIPIENT_EMAIL")     # Change to email address you want send to
 $MailMessage.IsBodyHtml = 1
 $MailMessage.Subject = "Refresh complete for $username in $pool"   # Change to set your email subject
-$MailMessage.Body = "Refresh complete for $usernamem in $pool"      # Change to set the body message of the email
+$MailMessage.Body = "Refresh complete for $username in $pool"      # Change to set the body message of the email
 $SmtpClient.Send($MailMessage)
