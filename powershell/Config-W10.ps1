@@ -160,6 +160,7 @@ $apps = @(
     "A278AB0D.DisneyMagicKingdoms"
     "WinZipComputing.WinZipUniversal"
     "AdobeSystemsIncorporated.AdobePhotoshopExpress"
+    #"22094SynapticsIncorporate.AudioControls"
     
     # apps which cannot be removed using Remove-AppxPackage
     #"Microsoft.BioEnrollment"
@@ -186,7 +187,7 @@ foreach ($app in $apps) {
     Write-Host "Trying to remove $app" -ForegroundColor Green
     Get-AppxPackage -Name $app -AllUsers | Remove-AppxPackage
     Get-AppxPackage -Name $app | Remove-AppxPackage
-    Get-AppXProvisionedPackage -Online | where { $_.displayName -eq $app } | Remove-AppxProvisionedPackage -Online
+    Get-AppXProvisionedPackage -Online | Where-Object { $_.displayName -eq $app } | Remove-AppxProvisionedPackage -Online
     Write-Host "$app has been removed"
 }
 Write-Host ""
