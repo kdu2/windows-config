@@ -4,8 +4,9 @@ param(
 )
 
 Import-Module vmware.hv.helper
-Connect-HVServer -Server $server
-Get-HVPool -PoolName $pool | Start-HVPool -Refresh -LogoffSetting FORCE_LOGOFF -Confirm:$false
+$secpwd = Get-Content "encrypted.txt" | ConvertTo-SecureString -Key (1..32)
+Connect-HVServer -Server $server -User "USER" -Password $secpwd
+Start-HVPool -Pool $pool -Refresh -LogoffSetting FORCE_LOGOFF -Confirm:$false
 
 $SmtpClient = New-Object system.net.mail.smtpClient
 $SmtpClient.host = "SMTP_HOST"                    # Change to a SMTP server in your environment

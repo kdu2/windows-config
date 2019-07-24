@@ -6,15 +6,15 @@ param(
 )
 
 Import-Module vmware.hv.helper
-
-Connect-HVServer -Server $server
+$secpwd = Get-Content "encrypted.txt" | ConvertTo-SecureString -Key (1.32)
+Connect-HVServer -Server $server -User "USER" -Password $secpwd
 
 $kiosksessions = Get-HVLocalSession | Where-Object { $_.NamesData.UserName -eq "$domain\$username" }
 
-[string[]]$desktops = ""
+$desktops = @()
 
 foreach ($session in $kiosksessions) {
-    $desktops += $session.NamesData.MachineOrRDSServer
+    $desktops += $session.NamesData.MachineOrRDSServerName
 }
 
 Start-HVPool -Refresh -Pool $pool -Machines $desktops -LogoffSetting FORCE_LOGOFF -Confirm:$false
