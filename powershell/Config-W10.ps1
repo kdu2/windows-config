@@ -337,6 +337,12 @@ reg add "hku\temp\software\Microsoft\Windows\CurrentVersion\BackgroundAccessAppl
 reg unload "hku\temp"
 Write-Host ""
 
+# Disable firewall nag on 1903
+Write-Host "Disable firewall notification on W10 1903"
+reg add "HKLM\SOFTWARE\Microsoft\Windows Defender Security Center\Notifications" /v DisableNotifications /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" /v DisableNotifications /t REG_DWORD /d 1 /f
+Write-Host ""
+
 # Disable Cortana:
 Write-Host "Disabling Cortana..." -ForegroundColor Green
 reg add "hklm\software\policies\microsoft\windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f
