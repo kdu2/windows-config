@@ -377,6 +377,16 @@ powercfg -change -monitor-timeout-ac 30
 #powercfg -change -standby-timeout-ac 0
 Write-Host ""
 
+# Disable privacy settings menu
+Write-Host "Setting privacy settings menu for new users" -ForegroundColor Green
+Write-Host ""
+New-ItemProperty -path 'HKLM:\Software\Policies\Microsoft\Windows\OOBE' -Name 'DisablePrivacyExperience' -PropertyType DWORD -Value '1' | Out-Null
+
+# Disable edge shortcut
+Write-Host "Disable edge icon for new users" -ForegroundColor Green
+Write-Host ""
+New-ItemProperty -path 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer' -Name 'DisableEdgeDesktopShortcutCreation' -PropertyType DWORD -Value '1' | Out-Null
+
 # Enable RDP
 #Write-Host "Enabling RDP" -ForegroundColor Green
 #reg add "hklm\system\currentcontrolset\control\terminal server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
