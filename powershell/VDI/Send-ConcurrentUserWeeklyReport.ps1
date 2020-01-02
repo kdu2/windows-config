@@ -54,6 +54,6 @@ $sendmailparams = @{
     From = "EMAIL"
     To = "EMAIL"
     Subject = "Pool Concurrent Session Weekly Report $subjectdate"
-    Body = $concurrentUserReport | Convertto-HTML -Head $css | Out-String
+    Body = $concurrentUserWeeklyReport | Convertto-HTML -Head $css | Out-String
 }
 Send-MailMessage @sendmailparams -BodyAsHtml

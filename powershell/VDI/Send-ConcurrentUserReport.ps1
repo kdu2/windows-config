@@ -34,11 +34,22 @@ foreach ($pool in $pools) {
 
 $concurrentUserReport | Export-csv -NoTypeInformation -Path "\\server\share\concurrentUserReport-$date.csv"
 
+$css = @"
+<style>
+BODY{font-family: Arial; font-size: 10pt; }
+TABLE{border: 1px solid black; border-collapse: collapse; }
+TH{border: 1px solid black; background: #dddddd; padding: 5px; }
+TD{border: 1px solid black; padding: 5px; }
+</style>
+"@
+
+$subjectdate = Get-Date -Format MM-dd-yyyy
+
 $sendmailparams = @{
     SMTPServer = "SMTP"
     From = "email"
     To = "email"
-    Subject = "Pool Concurrent Session Report"
-    Body = "\\server\share\concurrentUserReport-$date.csv"
+    Subject = "Pool Concurrent Session Report $subjectdate"
+    Body = $concurrentUserReport | Convertto-HTML -Header $css | Out-String
 }
-Send-MailMessage @sendmailparams
+Send-MailMessage @sendmailparams -BodyAsHtml
