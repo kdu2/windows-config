@@ -1,3 +1,5 @@
+# based on script from https://4sysops.com/archives/map-vmware-virtual-disks-and-windows-drive-volumes-with-a-powershell-script/
+
 param(
     [string]$vcenter,
     [string]$vmname,
@@ -12,34 +14,36 @@ $VMSummaries = @()
 $DiskMatches = @()
 
 $VMView = $VM | Get-View
-    foreach ($VirtualSCSIController in ($VMView.Config.Hardware.Device | Where-Object { $_.DeviceInfo.Label -match "SCSI Controller" })) {
-        foreach ($VirtualDiskDevice  in ($VMView.Config.Hardware.Device | Where {$_.ControllerKey -eq $VirtualSCSIController.Key})) {
-            $VMSummary = "" | Select-Object VM, HostName, PowerState, DiskFile, DiskName, DiskSize, SCSIController, SCSITarget
-            $VMSummary.VM = $VM.Name
-            $VMSummary.HostName = $VMView.Guest.HostName
-            $VMSummary.PowerState = $VM.PowerState
-            $VMSummary.DiskFile = $VirtualDiskDevice.Backing.FileName
-            $VMSummary.DiskName = $VirtualDiskDevice.DeviceInfo.Label
-            $VMSummary.DiskSize = $VirtualDiskDevice.CapacityInKB * 1KB
-            $VMSummary.SCSIController = $VirtualSCSIController.BusNumber
-            $VMSummary.SCSITarget = $VirtualDiskDevice.UnitNumber
-            $VMSummaries += $VMSummary
+foreach ($VirtualSCSIController in ($VMView.Config.Hardware.Device | Where-Object { $_.DeviceInfo.Label -match "SCSI Controller" })) {
+    foreach ($VirtualDiskDevice in ($VMView.Config.Hardware.Device | Where-Object { $_.ControllerKey -eq $VirtualSCSIController.Key })) {
+        $VMSummary = New-Object -TypeName PSObject -Property @{
+            "VM" = $VM.Name
+            "HostName" = $VMView.Guest.HostName
+            "PowerState" = $VM.PowerState
+            "DiskFile" = $VirtualDiskDevice.Backing.FileName
+            "DiskName" = $VirtualDiskDevice.DeviceInfo.Label
+            "DiskSize" = $VirtualDiskDevice.CapacityInKB * 1KB
+            "SCSIController" = $VirtualSCSIController.BusNumber
+            "SCSITarget" = $VirtualDiskDevice.UnitNumber
         }
+        $VMSummaries += $VMSummary
     }
+}
 
 $Disks = Get-WmiObject -Class Win32_DiskDrive -ComputerName $servername
 $Diff = $Disks.SCSIPort | Sort-Object -Descending | Select-Object -last 1 
 foreach ($device in $VMSummaries) {
-    $Disks | foreach {
-                if ((($_.SCSIPort - $Diff) -eq $device.SCSIController) -and ($_.SCSITargetID -eq $device.SCSITarget)) {
-                    $DiskMatch = "" | Select-Object VMWareDisk, VMWareDiskSize, WindowsDeviceID, WindowsDiskSize 
-                    $DiskMatch.VMWareDisk = $device.DiskName
-                    $DiskMatch.WindowsDeviceID = $_.DeviceID.Substring(4)
-                    $DiskMatch.VMWareDiskSize = $device.DiskSize/1gb
-                    $DiskMatch.WindowsDiskSize =  [decimal]::round($_.Size/1gb)
-                    $DiskMatches += $DiskMatch
-                }
+    foreach ($Disk in $Disks) {
+        if ((($Disk.SCSIPort - $Diff) -eq $device.SCSIController) -and ($Disk.SCSITargetID -eq $device.SCSITarget)) {
+            $DiskMatch = New-Object -TypeName PSObject -Property @{
+                "VMWareDisk" = $device.DiskName
+                "WindowsDeviceID" = $Disk.DeviceID.Substring(4)
+                "VMWareDiskSize" = $device.DiskSize/1gb
+                "WindowsDiskSize" =  [decimal]::round($Disk.Size/1gb)    
             }
+            $DiskMatches += $DiskMatch
+        }
+    }
 }
 
-$DiskMatches | Export-Csv -NoTypeInformation -Path "c:\temp\$($VM.Name)drive_matches.csv"
+$DiskMatches | Export-Csv -NoTypeInformation -Path "c:\temp\$($VM.Name)-drive_matches.csv"
