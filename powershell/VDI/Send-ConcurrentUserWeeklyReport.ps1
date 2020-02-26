@@ -28,11 +28,12 @@ foreach ($pool in $pools) {
             $max_date = $current_date
         }
     }
-    $obj = New-Object PSObject
-    $obj | Add-Member -MemberType NoteProperty -Name "Name" -Value $pool
-    $obj | Add-Member -MemberType NoteProperty -Name "Day" -Value $day
-    $obj | Add-Member -MemberType NoteProperty -Name "Date" -Value $max_date
-    $obj | Add-Member -MemberType NoteProperty -Name "Max Concurrent Users" -Value $max
+    $obj = New-Object PSObject -Property @{
+        "Name" = $pool
+        "Day" = $day
+        "Date" = $max_date
+        "Max Concurrent Users" = $max
+    }
     $concurrentUserWeeklyReport += $obj
 }
 

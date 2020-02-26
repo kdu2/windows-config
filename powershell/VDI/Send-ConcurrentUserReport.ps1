@@ -25,10 +25,11 @@ foreach ($pool in $pools) {
         }
     }
     $avg = $sum/$count
-    $obj = New-Object PSObject
-    $obj | Add-Member -MemberType NoteProperty -Name "Name" -Value $pool
-    $obj | Add-Member -MemberType NoteProperty -Name "Average Concurrent Users" -Value $avg
-    $obj | Add-Member -MemberType NoteProperty -Name "Max Concurrent Users" -Value $max
+    $obj = New-Object PSObject -Property @{
+        "Name" = $pool
+        "Average Concurrent Users" = $avg
+        "Max Concurrent Users" = $max
+    }
     $concurrentUserReport += $obj
 }
 

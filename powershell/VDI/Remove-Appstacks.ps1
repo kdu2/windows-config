@@ -2,9 +2,9 @@
 
 param([string]$pool)
 
-Add-PSSnapin VMware.VimAutomation.Core -ErrorAction SilentlyContinue
+Import-Module VMware.VimAutomation.Core
 
-Connect-VIServer vcenter.domain
+Connect-VIServer -Server vcenter.domain
 
 switch ($pool) {
 	"pool1" {
@@ -21,19 +21,20 @@ switch ($pool) {
 }
 
 for ($i = 1; $i -le $max; $i++) {
-    $linkedclone = "$prefix" + $i.ToString() + "V"
-    $disks = Get-HardDisk -VM $linkedclone
-    foreach ($disk in $disks)
-    {
-        $diskname = $disk.Filename
-		$disksize = $disk.CapacityGB
-		# replace datastore path with your own if not using default name from app volumes and default disk size
-        if (($diskname -like "*cloudvolumes/apps/*") -and ($disksize -eq 20))
-        {
-            write-output "VM $linkedclone - removing $diskname" | Out-File -Append "appstack-removal-$pool.log"
-            Remove-HardDisk $disk -Confirm:$false
-        }
-    }
+	#$linkedclone = "$prefix" + $i.ToString() + "V"
+	$linkedclones = Get-VM -Name "$prefix*"
+	foreach ($linkedclone in $linkedclones) {
+		$disks = Get-HardDisk -VM $linkedclone
+    	foreach ($disk in $disks) {
+			$diskname = $disk.Filename
+			$disksize = $disk.CapacityGB
+			# replace datastore path with your own if not using default name from app volumes and default disk size
+			if (($diskname -like "*cloudvolumes/apps/*") -and ($disksize -eq 20)) {
+				Write-Output "VM $linkedclone - removing $diskname" | Out-File -Append "appstack-removal-$pool.log"
+				Remove-HardDisk $disk -Confirm:$false
+			}
+    	}
+	}
 }
 
 $SmtpClient = New-Object system.net.mail.smtpClient
