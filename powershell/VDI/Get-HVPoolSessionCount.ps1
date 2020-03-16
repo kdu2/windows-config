@@ -3,7 +3,7 @@ param([string]$ConnectionServer)
 if ($null -ne $ConnectionServer) {
     Import-Module vmware.hv.helper
     Connect-HVServer -Server $ConnectionServer -User "DOMAIN\USER" -Password "PASSWORD"
-    $pools = (Get-HVPoolSummary).DesktopSummaryData | Where-Object { "test1","test2" -notcontains $_.name }
+    $pools = (Get-HVPoolSummary).DesktopSummaryData | Where-Object { $_.name -notmatch "test|test2" }
     $date = Get-Date -Format yyyyMMdd
     $time = Get-Date -Format hhmm
     $PoolList = @()
