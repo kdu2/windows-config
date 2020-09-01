@@ -1,5 +1,7 @@
 $date = Get-Date -Format yyyyMMdd
+$clientdate = Get-Date -Format yyyy-MM-dd
 $concurrentUserCounts = Import-csv "\\server\share\sessions-$date.csv"
+$clientLogins = Import-Csv "\\server\share\clients-$clientdate.csv"
 $pools = @()
 $concurrentUserReport = @()
 
@@ -14,8 +16,9 @@ foreach ($pool in $pools) {
     $avg = 0
     $count = 0
     $sum = 0
+    $logins = 0
     foreach ($userCount in $concurrentUserCounts) {
-        if ($userCount.Name -eq $pool) {
+        if ($userCount."Desktop Pool" -eq $pool) {
             $num = [int]$userCount.'Sessions'
             if ($num -gt $max) {
                 $max = $num
@@ -24,16 +27,19 @@ foreach ($pool in $pools) {
             $count++
         }
     }
+    $logins = ($clientLogins | Where-Object { $_."Desktop Pool" -eq $pool }).count
     $avg = $sum/$count
     $obj = New-Object PSObject -Property @{
-        "Name" = $pool
+        "Desktop Pool" = $pool
         "Average Concurrent Users" = $avg
         "Max Concurrent Users" = $max
+        "Total Logins" = $logins
     }
     $concurrentUserReport += $obj
 }
 
-$concurrentUserReport | Export-csv -NoTypeInformation -Path "\\server\share\concurrentUserReport-$date.csv"
+$DailyUserReport_final = $DailyUserReport | Sort-Object -Property "Desktop Pool" | Select-Object "Desktop Pool","Average Concurrent Users","Max Concurrent Users","Total Logins"
+$DailyUserReport_final | Export-csv -NoTypeInformation -Path "\\server\share\UserDailyReport-$date.csv"
 
 $css = @"
 <style>
@@ -50,7 +56,7 @@ $sendmailparams = @{
     SMTPServer = "SMTP"
     From = "email"
     To = "email"
-    Subject = "Pool Concurrent Session Report $subjectdate"
-    Body = $concurrentUserReport | Convertto-HTML -Header $css | Out-String
+    Subject = "Pool Session Report $subjectdate"
+    Body = $DailyUserReport_final | Convertto-HTML -Header $css | Out-String
 }
 Send-MailMessage @sendmailparams -BodyAsHtml

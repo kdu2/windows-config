@@ -3,6 +3,8 @@
 
 # get client name from environment variable after login
 $clientname = (Get-ItemProperty -path 'HKCU:\Volatile Environment' -name ViewClient_Machine_Name).ViewClient_Machine_Name
+$clientIP = Get-ItemPropertyValue -Path 'HKCU:\Volatile Environment' -Name ViewClient_IP_Address
+$desktopIP = (Test-Connection -Count 1 -ComputerName $env:computername).IPV4Address
 
 # get computer name
 $computername = $env:computername
@@ -17,23 +19,15 @@ $time = Get-Date -Format "hh:mm:sstt"
 # extract desktop pool from environment variable after login
 $pool = (Get-ItemProperty -Path 'HKCU:\Volatile Environment' -Name ViewClient_Launch_ID).ViewClient_Launch_ID
 
-# list of valid pools
-$pools = Get-Content "\\server\share\pools.txt"
-
 # log save path
 $logfile = "\\server\share\logs\clients-$date.log"
 
-# construct log entry based on client and computer name length. adds whitespace to line up evenly per line
-While ($clientname.Length -lt 14) { $clientname = "$clientname " }
-While ($computername.Length -lt 14) { $computername = "$computername " }
-$logentry = "$time - $clientname | $computername | $username"
+# construct log entry
+$logentry = "`"$time`",`"$clientname`",`"$clientIP`",`"$pool`",`"$computername`",`"$desktopIP`",`"$username`""
 
-# check if classroom is valid
-if ($pools -contains $pool) {
-    # create the daily log file if it doesn't exist
-    if (!(Test-Path $logfile)) {
-        Write-Output $date | Out-File -Append $logfile
-    }
-    # record zero client name, computer name and username
-    Write-Output $logentry | Out-File -Append $logfile
+# create log file
+if (!(Test-Path $logfile)) {
+    Write-Output "`"time`",`"clientname`",`"client IP`",`"desktop pool`",`"computername`",`"desktop IP`",`"username`"" | Out-File -Append $logfile -Encoding Ascii
 }
+# write to log
+Write-Output $logentry | Out-File -Append $logfile -Encoding Ascii
