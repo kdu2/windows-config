@@ -1,2 +1,2 @@
 @echo off
-runas /user:domain\user "cmd /c start /B mmc dsa.msc"
+powershell start-process -filepath cmd -argumentlist "/c","mmc","dsa.msc" -credential (load-credential)

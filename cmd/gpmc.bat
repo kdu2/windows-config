@@ -1,2 +1,2 @@
 @echo off
-runas /user:domain\user "cmd /c start /B mmc gpmc.msc"
+powershell start-process -filepath cmd -argumentlist "/c","mmc","gpmc.msc" -credential (load-credential)
