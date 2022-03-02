@@ -1,10 +1,8 @@
-# delete all except for the 5 most recent backups
+# delete all and keep X most recent backups
 param(
     [Parameter(Mandatory=$true)]
-    [string]$path
+    [string]$path,
+	[int]$backups=5
 )
 
-$backups = Get-ChildItem -Path "$path" -Directory | Sort-Object -Descending -Property LastWriteTime | Select-Object -Skip 5
-foreach ($backup in $backups ) {
-    Remove-Item $_ -Force -Recurse
-}
+Get-ChildItem -Path "$path" -Directory | Sort-Object -Descending -Property LastWriteTime | Select-Object -Skip $backups | Foreach-Object { Remove-Item $_ -Force -Recurse }

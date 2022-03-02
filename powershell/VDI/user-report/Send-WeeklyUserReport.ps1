@@ -52,7 +52,7 @@ foreach ($pool in $pools) {
 }
 
 $UserWeeklyReport_final = $UserWeeklyReport | Sort-Object "Desktop Pool" | Select-Object "Desktop Pool","Max Concurrent Users Day","Max Concurrent Date","Max Concurrent Sessions","Max Logins Day","Max Logins Date","Max Logins Count","Total Logins"
-$UserWeeklyReport_final | Export-Csv -NoTypeInformation -Path "\\nas\vdi\logs\sessions\UserWeeklyReport-$date.csv"
+$UserWeeklyReport_final | Export-Csv -NoTypeInformation -Path "\\server\share\logs\sessions\UserWeeklyReport-$date.csv"
 
 $css = @"
 <style>

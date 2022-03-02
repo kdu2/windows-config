@@ -9,7 +9,7 @@ if ($null -ne $ConnectionServer) {
     $PoolList = @()
     foreach ($pool in $pools) {
         $obj = New-Object PSObject -Property @{
-            "Desktop Pool" = $pool.Name
+            "Name" = $pool.Name
             "Sessions" = $pool.NumSessions
             "Time" = $time
         }
