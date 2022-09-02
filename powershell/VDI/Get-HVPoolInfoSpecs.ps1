@@ -8,22 +8,21 @@ Import-Module vmware.vimautomation.core
 if (!$global:defaulthvservers) {
     $hvuser = Read-Host -Prompt "Username"
     $hvpwd = Read-Host -AsSecureString -Prompt "Password"
-    $domain = Read-Host -Prompt "Domain"
-    $cred = New-Object System.Management.Automation.PSCredential("$domain\$hvuser",$hvpwd)    
+    $cred = New-Object System.Management.Automation.PSCredential("saddleback\$hvuser",$hvpwd)    
     Connect-HVServer -Server $ConnectionServer -Credential $cred
 }
 if (!$global:defaultviservers) {
     if (!$cred) {
         $hvuser = Read-Host -Prompt "Username"
         $hvpwd = Read-Host -AsSecureString -Prompt "Password"
-        $domain = Read-Host -Prompt "Domain"
-        $cred = New-Object System.Management.Automation.PSCredential("$domain\$hvuser",$hvpwd)    
+        $cred = New-Object System.Management.Automation.PSCredential("saddleback\$hvuser",$hvpwd)    
     }
     Connect-VIServer -Server $vcenter -Credential $cred
 }
 $pools = Get-HVPool
 
 $PoolList = @()
+$date = Get-Date -Format yyyy-MM-dd
 
 foreach ($pool in $pools) {
     if ($pool.type -eq "AUTOMATED") {
@@ -40,4 +39,4 @@ foreach ($pool in $pools) {
         $PoolList += $obj
     }
 }
-$PoolList | Sort-Object ParentVM | Select-Object name,displayname,desktoptotal,ParentVM,CPU,RAM | Export-Csv -NoTypeInformation "C:\temp\$connectionserver-poolinfospecs.csv"
+$PoolList | Sort-Object ParentVM | Select-Object name,displayname,desktoptotal,ParentVM,CPU,RAM | Export-Csv -NoTypeInformation "C:\temp\$connectionserver-poolinfospecs-$date.csv"

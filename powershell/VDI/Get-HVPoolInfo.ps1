@@ -1,5 +1,5 @@
 param(
-    [Parameter(Mandatory=$true)]   
+    [Parameter(Mandatory=$true)]
     [string]$ConnectionServer
 )
 
@@ -8,6 +8,7 @@ Connect-HVServer -Server $ConnectionServer
 $pools = Get-HVPool
 
 $PoolList = @()
+$date = Get-Date -Format yyyy-MM-dd
 
 foreach ($pool in $pools) {
     $obj = New-Object PSObject -Property @{
@@ -21,5 +22,5 @@ foreach ($pool in $pools) {
     }
     $PoolList += $obj
 }
-$PoolList | Sort-Object ParentVM | Select-Object name,Entitlements,vmprefix,desktoptotal,ParentVM,Snapshot | Export-Csv -NoTypeInformation "C:\temp\$connectionserver-poolinfo.csv"
+$PoolList | Sort-Object ParentVM | Select-Object name,Entitlements,vmprefix,desktoptotal,ParentVM,Snapshot | Export-Csv -NoTypeInformation "C:\temp\$connectionserver-poolinfo-$date.csv"
 $PoolList | Sort-Object ParentVM | Select-Object name,Entitlements,vmprefix,desktoptotal,ParentVM,Snapshot

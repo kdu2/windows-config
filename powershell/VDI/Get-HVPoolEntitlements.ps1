@@ -4,19 +4,31 @@ param(
 )
 
 Import-Module vmware.hv.helper
-Connect-HVServer -Server $connectionserver
+
+if (!$global:defaulthvservers) {
+    $hvuser = Read-Host -Prompt "Username"
+    $hvpwd = Read-Host -AsSecureString -Prompt "Password"
+    $cred = New-Object System.Management.Automation.PSCredential("saddleback\$hvuser",$hvpwd)    
+    Connect-HVServer -Server $ConnectionServer -Credential $cred
+}
 
 $pools = Get-HVPool
+
+$date = Get-Date -Format yyyy-MM-dd
 
 $entitlements = @()
 
 foreach ($pool in $pools) {
-    $obj = New-Object PSObject -Property @{
-        "Name" = $pool.base.name
-        "Entitlements" = [string](Get-HVEntitlement -ResourceName $pool.base.name).base.DisplayName
-    }
-    $entitlements += $obj
+    Write-Host "Getting entitlements for $($pool.base.name)"
+    $pool_entitlements = (Get-HVEntitlement -ResourceName $pool.base.name).base | Select-Object DisplayName
+    foreach ($pool_entitlement in $pool_entitlements) {
+        $obj = New-Object PSObject -Property @{
+            "Name" = $pool.base.name
+            "Entitlement" = $pool_entitlement.DisplayName
+        }
+        $entitlements += $obj
+    }    
 }
 
-$entitlements | Sort-Object Name | Select-Object Name,Entitlements | Export-Csv -NoTypeInformation "C:\temp\$connectionserver-poolentitlements.csv"
-$entitlements | Sort-Object Name | Select-Object Name,Entitlements
+$entitlements | Sort-Object Name | Select-Object Name,Entitlement | Export-Csv -NoTypeInformation "C:\temp\$connectionserver-poolentitlements-$date.csv"
+#$entitlements | Sort-Object Name | Select-Object Name,Entitlement
